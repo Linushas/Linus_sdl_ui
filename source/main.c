@@ -56,6 +56,8 @@ int main(int argc, char **argv) {
         checklist_addItem(wm.rend, cb2, "checkbox 14");
 
         Slider slider = createSlider(wm.rend, 400, 50, 160, ui_res.white);
+        Slider slider2 = createSlider(wm.rend, 400, 100, 200, ui_res.red);
+        Slider slider3 = createSlider(wm.rend, 400, 150, 240, ui_res.blue);
 
         // MAIN LOOP
         SDL_Event event;
@@ -87,6 +89,8 @@ int main(int argc, char **argv) {
                 checklist_event(cb, mouse_x, mouse_y, is_mouse_down);
                 checklist_event(cb2, mouse_x, mouse_y, is_mouse_down);
                 slider_updateValue(slider, mouse_x, mouse_y, is_mouse_down);
+                slider_updateValue(slider2, mouse_x, mouse_y, is_mouse_down);
+                slider_updateValue(slider3, mouse_x, mouse_y, is_mouse_down);
 
                 // RENDER
                 SDL_SetRenderDrawColor(wm.rend, 0,0,10,0);
@@ -97,6 +101,8 @@ int main(int argc, char **argv) {
                 checklist_render(wm.rend, cb);
                 checklist_render(wm.rend, cb2);
                 slider_render(wm.rend, slider);
+                slider_render(wm.rend, slider2);
+                slider_render(wm.rend, slider3);
                 SDL_RenderPresent(wm.rend);
         }
 
@@ -111,6 +117,8 @@ int main(int argc, char **argv) {
         destroyChecklist(cb);
         destroyChecklist(cb2);
         destroySlider(slider);
+        destroySlider(slider2);
+        destroySlider(slider3);
 
         SDL_DestroyRenderer(wm.rend);
         SDL_DestroyWindow(wm.win);
