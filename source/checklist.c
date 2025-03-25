@@ -74,7 +74,7 @@ int destroyChecklist(Checklist cb) {
 
 int checklist_event(Checklist cb, int mouse_x, int mouse_y, bool is_mouse_down) {
         (cb->cooldown)++;
-        if(mouse_x > cb->x && mouse_y > cb->y && is_mouse_down) {
+        if(mouse_x > cb->x && mouse_y > cb->y && is_mouse_down && mouse_x < (cb->x + cb->size*2)) {
                 int idx = ((mouse_y - cb->y) + cb->size/4)/cb->size;
                 if(idx < cb->item_count && cb->cooldown > 10){
                         cb->items[idx].is_selected = !cb->items[idx].is_selected;

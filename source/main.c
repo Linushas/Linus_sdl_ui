@@ -13,6 +13,7 @@ typedef struct windowModel {
 typedef struct UIResources {
         TTF_Font *font_russo;
         TTF_Font *russo_small;
+        TTF_Font *russo_medium;
         SDL_Color black, white, red, green, blue;
 } UIRes;
 
@@ -36,12 +37,22 @@ int main(int argc, char **argv) {
         createButtons(buttons, &wm, ui_res);
         int button_count = sizeof(buttons) / sizeof(Button);
 
-        Checklist cb = createChecklist(100, 100, 50, ui_res.white, ui_res.font_russo);
+        Checklist cb = createChecklist(50, 50, 40, ui_res.white, ui_res.russo_medium);
         checklist_addItem(wm.rend, cb, "item 1");
         checklist_addItem(wm.rend, cb, "item 2");
         checklist_addItem(wm.rend, cb, "item 3");
         checklist_addItem(wm.rend, cb, "item 5");
         checklist_addItem(wm.rend, cb, "item 6");
+
+        Checklist cb2 = createChecklist(200, 50, 40, ui_res.white, ui_res.russo_medium);
+        checklist_addItem(wm.rend, cb2, "checkbox 7");
+        checklist_addItem(wm.rend, cb2, "checkbox 8");
+        checklist_addItem(wm.rend, cb2, "checkbox 9");
+        checklist_addItem(wm.rend, cb2, "checkbox 10");
+        checklist_addItem(wm.rend, cb2, "checkbox 11");
+        checklist_addItem(wm.rend, cb2, "checkbox 12");
+        checklist_addItem(wm.rend, cb2, "checkbox 13");
+        checklist_addItem(wm.rend, cb2, "checkbox 14");
 
         // MAIN LOOP
         SDL_Event event;
@@ -65,6 +76,7 @@ int main(int argc, char **argv) {
                         button_event(buttons[i], mouse_x, mouse_y);
                 }
                 checklist_event(cb, mouse_x, mouse_y, is_mouse_down);
+                checklist_event(cb2, mouse_x, mouse_y, is_mouse_down);
 
                 // RENDER
                 SDL_SetRenderDrawColor(wm.rend, 0,0,10,0);
@@ -73,17 +85,20 @@ int main(int argc, char **argv) {
                         button_render(wm.rend, buttons[i]);
                 }
                 checklist_render(wm.rend, cb);
+                checklist_render(wm.rend, cb2);
                 SDL_RenderPresent(wm.rend);
         }
 
         // CLEANUP
         TTF_CloseFont(ui_res.font_russo);
         TTF_CloseFont(ui_res.russo_small);
+        TTF_CloseFont(ui_res.russo_medium);
 
         for(int i = 0; i < button_count; i++) {
                 destroyButton(buttons[i]);
         }
         destroyChecklist(cb);
+        destroyChecklist(cb2);
 
         SDL_DestroyRenderer(wm.rend);
         SDL_DestroyWindow(wm.win);
@@ -95,6 +110,7 @@ int main(int argc, char **argv) {
 int UI_Init(UIRes *res) {
         res->font_russo = TTF_OpenFont("res/RussoOne-Regular.ttf", 24);
         res->russo_small = TTF_OpenFont("res/RussoOne-Regular.ttf", 12);
+        res->russo_medium = TTF_OpenFont("res/RussoOne-Regular.ttf", 16);
 
         res->black = createColor(0, 0, 0, 255);
         res->white = createColor(255, 255, 255, 255);
