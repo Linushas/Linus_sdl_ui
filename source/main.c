@@ -1,12 +1,11 @@
 #include <stdio.h>
 #include <stdbool.h>
-#include <SDL2/SDL_image.h>
 #include "button.h"
+#include "ui_extra.h"
 
 typedef struct windowModel {
         SDL_Window *win;
         SDL_Renderer *rend;
-
         bool is_running;
 } WM;
 
@@ -15,35 +14,9 @@ typedef struct UIResources {
         SDL_Color black, white, red, green, blue;
 } UIRes;
 
-SDL_Rect createRect(int x, int y, int w, int h) {
-        SDL_Rect r = {x,y,w,h};
-        return r;
-}
 
-SDL_Color createColor(int r, int g, int b, int a) {
-        SDL_Color c = {r,g,b,a};
-        return c;
-}
-
-int UI_Init(UIRes *res) {
-        res->font_russo = TTF_OpenFont("res/RussoOne-Regular.ttf", 24);
-
-        res->black = createColor(0, 0, 0, 255);
-        res->white = createColor(255, 255, 255, 255);
-        res->red = createColor(255, 0, 0, 255);
-        res->green = createColor(0, 255, 0, 255);
-        res->blue = createColor(0, 0, 255, 255);
-        return 1;
-}
-
-int createButtons(Button *buttons, WM *wm, const UIRes ui_res) {
-        buttons[0] = createButton(
-                wm->rend, "Button", createRect(100,100,400,200), 
-                ui_res.white, ui_res.black, ui_res.font_russo
-        );
-        if(buttons[0] == NULL) return 1;
-        button_setColorsHovered(wm->rend, buttons[0], ui_res.black, ui_res.white);
-}
+int UI_Init(UIRes *res);
+int createButtons(Button *buttons, WM *wm, const UIRes ui_res);
 
 int main(int argc, char **argv) {
         SDL_Init(SDL_INIT_EVERYTHING);
@@ -94,4 +67,24 @@ int main(int argc, char **argv) {
         TTF_Quit();
         SDL_Quit();
         return 0;
+}
+
+int UI_Init(UIRes *res) {
+        res->font_russo = TTF_OpenFont("res/RussoOne-Regular.ttf", 24);
+
+        res->black = createColor(0, 0, 0, 255);
+        res->white = createColor(255, 255, 255, 255);
+        res->red = createColor(255, 0, 0, 255);
+        res->green = createColor(0, 255, 0, 255);
+        res->blue = createColor(0, 0, 255, 255);
+        return 1;
+}
+
+int createButtons(Button *buttons, WM *wm, const UIRes ui_res) {
+        buttons[0] = createButton(
+                wm->rend, "Button", createRect(100,100,400,200), 
+                ui_res.white, ui_res.black, ui_res.font_russo
+        );
+        if(buttons[0] == NULL) return 1;
+        button_setColorsHovered(wm->rend, buttons[0], ui_res.black, ui_res.white);
 }

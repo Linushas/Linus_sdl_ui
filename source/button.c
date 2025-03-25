@@ -2,7 +2,6 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
-#include <SDL2/SDL_image.h>
 #include "button.h"
 
 typedef struct Button {
