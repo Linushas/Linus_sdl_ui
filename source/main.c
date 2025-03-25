@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "button.h"
-#include "checkbox.h"
+#include "checklist.h"
 #include "ui_extra.h"
 
 typedef struct windowModel {
@@ -20,6 +20,7 @@ int UI_Init(UIRes *res);
 int createButtons(Button *buttons, WM *wm, const UIRes ui_res);
 
 int main(int argc, char **argv) {
+        // SDL INIT
         SDL_Init(SDL_INIT_EVERYTHING);
         TTF_Init();
 
@@ -27,49 +28,62 @@ int main(int argc, char **argv) {
         wm.win = SDL_CreateWindow("UI test", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 600*16/9, 600, 0);
         wm.rend = SDL_CreateRenderer(wm.win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
+        // UI INIT
         UIRes ui_res;
         UI_Init(&ui_res);
 
-        Button buttons[6];
+        Button buttons[7];
         createButtons(buttons, &wm, ui_res);
         int button_count = sizeof(buttons) / sizeof(Button);
 
-        Checkbox cb = createCheckbox(100, 100, 50, ui_res.white, ui_res.font_russo);
-        checkbox_addItem(wm.rend, cb, "item 1");
-        checkbox_addItem(wm.rend, cb, "item 2");
-        checkbox_addItem(wm.rend, cb, "item 3");
+        Checklist cb = createChecklist(100, 100, 50, ui_res.white, ui_res.font_russo);
+        checklist_addItem(wm.rend, cb, "item 1");
+        checklist_addItem(wm.rend, cb, "item 2");
+        checklist_addItem(wm.rend, cb, "item 3");
+        checklist_addItem(wm.rend, cb, "item 5");
+        checklist_addItem(wm.rend, cb, "item 6");
 
+        // MAIN LOOP
         SDL_Event event;
         int mouse_x, mouse_y;
+        bool is_mouse_down = 0;
         while(wm.is_running) {
+                // SDL EVENT
                 while(SDL_PollEvent(&event)) {
                         if(event.type == SDL_QUIT) {
                                 wm.is_running = false;
                         }
+                        if(event.type == SDL_MOUSEBUTTONDOWN){
+                                is_mouse_down = true;
+                        }
+                        else is_mouse_down = false;
                 }
                 SDL_GetMouseState(&mouse_x, &mouse_y);
 
+                // POLL UI COMPONENTS
                 for(int i = 0; i < button_count; i++) {
                         button_event(buttons[i], mouse_x, mouse_y);
                 }
+                checklist_event(cb, mouse_x, mouse_y, is_mouse_down);
 
+                // RENDER
                 SDL_SetRenderDrawColor(wm.rend, 0,0,10,0);
                 SDL_RenderClear(wm.rend);
-
-                for(int i = 0; i < button_count; i++)
+                for(int i = 0; i < button_count; i++) {
                         button_render(wm.rend, buttons[i]);
-
-                checkbox_render(wm.rend, cb);
-
+                }
+                checklist_render(wm.rend, cb);
                 SDL_RenderPresent(wm.rend);
         }
 
+        // CLEANUP
         TTF_CloseFont(ui_res.font_russo);
         TTF_CloseFont(ui_res.russo_small);
 
-        for(int i = 0; i < button_count; i++)
+        for(int i = 0; i < button_count; i++) {
                 destroyButton(buttons[i]);
-        destroyCheckbox(cb);
+        }
+        destroyChecklist(cb);
 
         SDL_DestroyRenderer(wm.rend);
         SDL_DestroyWindow(wm.win);
@@ -132,6 +146,13 @@ int createButtons(Button *buttons, WM *wm, const UIRes ui_res) {
         );
         if(buttons[5] == NULL) return 0;
         button_setColorsHovered(wm->rend, buttons[5], ui_res.black, ui_res.white);
+
+        buttons[6] = createButton(
+                wm->rend, "Button 7", createRect(480,0,80,20), 
+                ui_res.white, ui_res.black, ui_res.russo_small
+        );
+        if(buttons[6] == NULL) return 0;
+        button_setColorsHovered(wm->rend, buttons[6], ui_res.black, ui_res.white);
 
         return 1;
 }
