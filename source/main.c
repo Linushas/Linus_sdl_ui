@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "button.h"
+#include "checkbox.h"
 #include "ui_extra.h"
 
 typedef struct windowModel {
@@ -33,6 +34,11 @@ int main(int argc, char **argv) {
         createButtons(buttons, &wm, ui_res);
         int button_count = sizeof(buttons) / sizeof(Button);
 
+        Checkbox cb = createCheckbox(100, 100, 50, ui_res.white, ui_res.font_russo);
+        checkbox_addItem(wm.rend, cb, "item 1");
+        checkbox_addItem(wm.rend, cb, "item 2");
+        checkbox_addItem(wm.rend, cb, "item 3");
+
         SDL_Event event;
         int mouse_x, mouse_y;
         while(wm.is_running) {
@@ -53,13 +59,17 @@ int main(int argc, char **argv) {
                 for(int i = 0; i < button_count; i++)
                         button_render(wm.rend, buttons[i]);
 
+                checkbox_render(wm.rend, cb);
+
                 SDL_RenderPresent(wm.rend);
         }
 
         TTF_CloseFont(ui_res.font_russo);
         TTF_CloseFont(ui_res.russo_small);
+
         for(int i = 0; i < button_count; i++)
                 destroyButton(buttons[i]);
+        destroyCheckbox(cb);
 
         SDL_DestroyRenderer(wm.rend);
         SDL_DestroyWindow(wm.win);
