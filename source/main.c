@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "button.h"
+#include "slider.h"
 #include "checklist.h"
 #include "ui_extra.h"
 
@@ -54,6 +55,8 @@ int main(int argc, char **argv) {
         checklist_addItem(wm.rend, cb2, "checkbox 13");
         checklist_addItem(wm.rend, cb2, "checkbox 14");
 
+        Slider slider = createSlider(wm.rend, 400, 50, 160, ui_res.white);
+
         // MAIN LOOP
         SDL_Event event;
         int mouse_x, mouse_y;
@@ -61,13 +64,19 @@ int main(int argc, char **argv) {
         while(wm.is_running) {
                 // SDL EVENT
                 while(SDL_PollEvent(&event)) {
-                        if(event.type == SDL_QUIT) {
-                                wm.is_running = false;
+                        switch(event.type) {
+                                case SDL_QUIT:
+                                    wm.is_running = false;
+                                    break;
+                                case SDL_MOUSEBUTTONDOWN:
+                                    if(event.button.button == SDL_BUTTON_LEFT)
+                                        is_mouse_down = true;
+                                    break;
+                                case SDL_MOUSEBUTTONUP:
+                                    if(event.button.button == SDL_BUTTON_LEFT)
+                                        is_mouse_down = false;
+                                    break;
                         }
-                        if(event.type == SDL_MOUSEBUTTONDOWN){
-                                is_mouse_down = true;
-                        }
-                        else is_mouse_down = false;
                 }
                 SDL_GetMouseState(&mouse_x, &mouse_y);
 
@@ -77,6 +86,7 @@ int main(int argc, char **argv) {
                 }
                 checklist_event(cb, mouse_x, mouse_y, is_mouse_down);
                 checklist_event(cb2, mouse_x, mouse_y, is_mouse_down);
+                slider_updateValue(slider, mouse_x, mouse_y, is_mouse_down);
 
                 // RENDER
                 SDL_SetRenderDrawColor(wm.rend, 0,0,10,0);
@@ -86,6 +96,7 @@ int main(int argc, char **argv) {
                 }
                 checklist_render(wm.rend, cb);
                 checklist_render(wm.rend, cb2);
+                slider_render(wm.rend, slider);
                 SDL_RenderPresent(wm.rend);
         }
 
@@ -99,6 +110,7 @@ int main(int argc, char **argv) {
         }
         destroyChecklist(cb);
         destroyChecklist(cb2);
+        destroySlider(slider);
 
         SDL_DestroyRenderer(wm.rend);
         SDL_DestroyWindow(wm.win);

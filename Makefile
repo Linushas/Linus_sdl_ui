@@ -1,6 +1,6 @@
 
 
-OBJ = main.o button.o checklist.o ui_extra.o #ex på viler 
+OBJ = main.o button.o checklist.o slider.o ui_extra.o #ex på viler 
 # Hämta OS-namnet via uname. 
 # Om uname inte finns (t.ex. ren Windows utan MSYS), sätt OS till Windows_NT.
 OS := $(shell uname -s 2>/dev/null)
@@ -68,6 +68,9 @@ ui_extra.o: $(SRCDIR)/ui_extra.c
 
 checklist.o: $(SRCDIR)/checklist.c
 	$(CC) $(CFLAGS) $(SRCDIR)/checklist.c -o checklist.o
+
+slider.o: $(SRCDIR)/slider.c
+	$(CC) $(CFLAGS) $(SRCDIR)/slider.c -o slider.o
 
 # Clean binaries
 clean: 
