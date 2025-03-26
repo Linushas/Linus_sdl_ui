@@ -10,6 +10,7 @@ typedef struct Panel *Panel;
 
 Panel createPanel(SDL_Rect rect, SDL_Color bg, SDL_Color border_color);
 void panel_render(SDL_Renderer *rend, Panel p);
+int panel_update(Panel p, int mouse_x, int mouse_y, bool is_mouse_down);
 int destroyPanel(Panel p);
 int panel_addComponent(Panel p, int type, void *component, char *key);
 

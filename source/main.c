@@ -26,7 +26,6 @@ int UI_Init(UIRes *res);
 int createButtons(Button *buttons, WM *wm, const UIRes ui_res);
 
 int main(int argc, char **argv) {
-        // SDL INIT
         SDL_Init(SDL_INIT_EVERYTHING);
         TTF_Init();
 
@@ -71,14 +70,12 @@ int main(int argc, char **argv) {
                 }
                 SDL_GetMouseState(&mouse_x, &mouse_y);
 
-                button_event(my_button, mouse_x, mouse_y);
+                panel_update(panel, mouse_x, mouse_y, is_mouse_down);
 
                 // RENDER
                 SDL_SetRenderDrawColor(wm.rend, 0,0,10,0);
                 SDL_RenderClear(wm.rend);
-
                 panel_render(wm.rend, panel);
-
                 SDL_RenderPresent(wm.rend);
         }
 

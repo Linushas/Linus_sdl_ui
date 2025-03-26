@@ -61,6 +61,44 @@ int panel_addComponent(Panel p, int type, void *component, char *key) {
         return true;
 }
 
+int panel_update(Panel p, int mouse_x, int mouse_y, bool is_mouse_down) {
+        if (p == NULL) {
+                printf("Error: Attempting to render a NULL Panel.\n");
+                return -1;
+        }
+
+        for (int i = 0; i < p->component_count; i++) {
+                Component comp = p->component_list[i];
+                switch (comp.type) {
+                        case COMPONENT_BUTTON:
+                                button_event((Button)comp.component, mouse_x, mouse_y);
+                                break;
+
+                        case COMPONENT_CHECKLIST:
+                                checklist_event((Checklist)comp.component, mouse_x, mouse_y, is_mouse_down);
+                                break;
+
+                        case COMPONENT_SLIDER:
+                                slider_updateValue((Slider)comp.component, mouse_x, mouse_y, is_mouse_down);
+                                break;
+
+                        case COMPONENT_TEXT_INPUT_FIELD:
+                                
+                                break;
+
+                        case COMPONENT_DROPDOWN_MENU:
+                                dropdownMenu_event((DropdownMenu)comp.component, mouse_x, mouse_y, is_mouse_down);
+                                break;
+
+                        default:
+                                printf("Warning: Unknown component type (%d) in panel_update.\n", comp.type);
+                                break;
+                }
+        }
+
+        return -1;
+}
+
 void panel_render(SDL_Renderer *rend, Panel p) {
         if (p == NULL) {
             printf("Error: Attempting to render a NULL Panel.\n");
