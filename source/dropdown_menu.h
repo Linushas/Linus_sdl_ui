@@ -12,5 +12,6 @@ int destroyDropdownMenu(DropdownMenu dm);
 int dropdownMenu_event(DropdownMenu dm, int mouse_x, int mouse_y, bool is_mouse_down);
 void dropdownMenu_render(SDL_Renderer *rend, DropdownMenu dm);
 void dropdownMenu_setVisibilityTrue(DropdownMenu dm);
+void dropdownMenu_getItemText(DropdownMenu dm, int idx, char *text);
 
 #endif

@@ -84,6 +84,10 @@ int dropdownMenu_addItem(SDL_Renderer *rend, DropdownMenu dm, char *text) {
         return true;
 }
 
+void dropdownMenu_getItemText(DropdownMenu dm, int idx, char *text) {
+        strcpy(text, dm->items[idx].text);
+}
+
 int destroyDropdownMenu(DropdownMenu dm) {
         for(int i = 0; i < dm->item_count; i++) {
                 SDL_DestroyTexture(dm->items[i].texture);
@@ -100,11 +104,13 @@ int dropdownMenu_event(DropdownMenu dm, int mouse_x, int mouse_y, bool is_mouse_
         if(dm->is_visible) {
                 counter++;
         }
+        else return -1;
+
         bool mouse_over_menu = (
                 (mouse_x <= dm->rect.x + dm->rect.w) &&
                 (mouse_x >= dm->rect.x) &&
                 (mouse_y <= dm->rect.y + dm->rect.h) &&
-                (mouse_y >= dm->rect.y - 10)
+                (mouse_y >= dm->rect.y - 30)
         );
 
         if(!mouse_over_menu) {
@@ -114,11 +120,12 @@ int dropdownMenu_event(DropdownMenu dm, int mouse_x, int mouse_y, bool is_mouse_
         }
 
         int idx = ((mouse_y - dm->rect.y) + dm->item_height/4)/dm->item_height;
-        if(idx < dm->item_count){ 
+        if(idx < dm->item_count) { 
+                dm->selected_idx = idx;
                 if(is_mouse_down && counter > 20) {
                         counter = 0;
                         dm->is_visible = false;
-                        return dm->selected_idx = idx;
+                        return dm->selected_idx;
                 } 
         } 
         return -1;

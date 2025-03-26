@@ -12,6 +12,7 @@ typedef struct Panel *Panel;
 typedef struct UI_Event {
         int event_type;
         char component_key[256];
+        int item_idx;
 } UI_Event;
 
 Panel createPanel(SDL_Rect rect, SDL_Color bg, SDL_Color border_color);

@@ -38,6 +38,7 @@ int main(int argc, char **argv) {
         UIRes ui_res;
         UI_Init(&ui_res);
 
+        // PANEL AND COMPONENT INIT
         Panel panel = createPanel(createRect(50, 50, wm.w-100, wm.h-100), ui_res.black, createColor(50, 50, 50, 255));
         UI_Event ui_event;
 
@@ -45,12 +46,35 @@ int main(int argc, char **argv) {
         panel_addComponent(panel, COMPONENT_BUTTON, my_button, "my_button1");
         button_setColorsHovered(wm.rend, my_button, createColor(50, 50, 50, 255), ui_res.white);
 
-        Slider my_slider = createSlider(100, 100, 200, ui_res.white);
+        Button my_button2 = createButton(wm.rend, "Click Me!", createRect(300, 300, 200, 100), ui_res.white, ui_res.black, ui_res.font_russo);
+        panel_addComponent(panel, COMPONENT_BUTTON, my_button2, "click_me");
+        button_setColorsHovered(wm.rend, my_button2, createColor(50, 50, 50, 255), ui_res.white);
+
+        Button dropdown_button = createButton(wm.rend, "Choose Language", createRect(400, 100, 150, 30), ui_res.white, ui_res.black, ui_res.russo_small);
+        panel_addComponent(panel, COMPONENT_BUTTON, dropdown_button, "lang_dropdown_button");
+        button_setColorsHovered(wm.rend, dropdown_button, createColor(50, 50, 50, 255), ui_res.white);
+
+        Slider my_slider = createSlider(100, 200, 200, ui_res.white);
         panel_addComponent(panel, COMPONENT_SLIDER, my_slider, "slider123");
+
+        Checklist my_checklist = createChecklist(100, 300, 30, ui_res.white, ui_res.russo_small);
+        panel_addComponent(panel, COMPONENT_CHECKLIST, my_checklist, "hello_checklist");
+        checklist_addItem(wm.rend, my_checklist, "Item 1");
+        checklist_addItem(wm.rend, my_checklist, "Item 2");
+
+        DropdownMenu my_dropdownMenu = createDropdownMenu(createRect(400, 130, 150, 30), ui_res.black, ui_res.white, ui_res.russo_small);
+        panel_addComponent(panel, COMPONENT_DROPDOWN_MENU, my_dropdownMenu, "lang_dropdown_menu");
+        dropdownMenu_addItem(wm.rend, my_dropdownMenu, "English");
+        dropdownMenu_addItem(wm.rend, my_dropdownMenu, "Chinese");
+        dropdownMenu_addItem(wm.rend, my_dropdownMenu, "Swedish");
+        dropdownMenu_addItem(wm.rend, my_dropdownMenu, "Spanish");
+        dropdownMenu_addItem(wm.rend, my_dropdownMenu, "Japanese");
+        dropdownMenu_addItem(wm.rend, my_dropdownMenu, "French");
 
         // MAIN LOOP
         SDL_Event event;
         int mouse_x, mouse_y;
+        bool is_me_clicked = false;
         bool is_mouse_down = 0;
         while(wm.is_running) {
                 while(SDL_PollEvent(&event)) {
@@ -76,16 +100,38 @@ int main(int argc, char **argv) {
                 SDL_GetMouseState(&mouse_x, &mouse_y);
                 panel_update(panel, &ui_event, mouse_x, mouse_y, is_mouse_down);
 
-                if(strcmp(ui_event.component_key, "my_button1") == 0 && ui_event.event_type == BUTTON_CLICKED) {
-                        printf("Button was clicked\n");
-                }
+                switch(ui_event.event_type) {
+                        case BUTTON_CLICKED:
+                                if(strcmp(ui_event.component_key, "my_button1") == 0) {
+                                        printf("Button was clicked\n");
+                                }
+                                else if(strcmp(ui_event.component_key, "lang_dropdown_button") == 0) {
+                                        dropdownMenu_setVisibilityTrue(my_dropdownMenu);
+                                }
+                                else if(strcmp(ui_event.component_key, "click_me") == 0) {
+                                        if(!is_me_clicked) {
+                                                checklist_addItem(wm.rend, my_checklist, "Hello");
+                                                checklist_addItem(wm.rend, my_checklist, "World!");
+                                                is_me_clicked = true;
+                                        }
+                                }
+                                break;
 
-                Slider secret_slider;
-                if((secret_slider = panel_getComponent(panel, "slider123")) != NULL) {
-                        float value = slider_getValue(secret_slider);
-                        if(ui_event.event_type == SLIDER_UPDATED) {
-                                printf("value: %.3f\n", value);
-                        }        
+                        case DROPDOWN_ITEM_CLICKED:
+                                if(strcmp(ui_event.component_key, "lang_dropdown_menu") == 0) {
+                                        char language[256];
+                                        dropdownMenu_getItemText(my_dropdownMenu, ui_event.item_idx, language);
+                                        printf("Language: %s\n", language);
+                                }
+                                break;
+                        
+                        case SLIDER_UPDATED:
+                                Slider secret_slider;
+                                if((secret_slider = panel_getComponent(panel, "slider123")) != NULL) {
+                                        float value = slider_getValue(secret_slider);
+                                        printf("value: %.3f\n", value);    
+                                }
+                                break;
                 }
                 
                 SDL_SetRenderDrawColor(wm.rend, 0,0,10,0);
