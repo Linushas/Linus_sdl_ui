@@ -1,5 +1,5 @@
-#ifndef CHECKBOX_H
-#define CHECKBOX_H
+#ifndef CHECKLIST_H
+#define CHECKLIST_H
 
 #include <stdbool.h>
 #include "SDL_include.h"

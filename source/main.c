@@ -4,6 +4,7 @@
 #include "slider.h"
 #include "checklist.h"
 #include "text_input_field.h"
+#include "dropdown_menu.h"
 #include "ui_extra.h"
 
 typedef struct windowModel {
@@ -62,6 +63,14 @@ int main(int argc, char **argv) {
 
         TextInputField tif = createTextInputField(wm.rend, createRect(400, 200, 200, 100), ui_res.black, ui_res.white, ui_res.russo_small);
 
+        DropdownMenu dm = createDropdownMenu(createRect(580, 10, 100, 300), ui_res.black, ui_res.white, ui_res.russo_small);
+        dropdownMenu_addItem(wm.rend, dm, "Menu item 1");
+        dropdownMenu_addItem(wm.rend, dm, "Menu item 2");
+        dropdownMenu_addItem(wm.rend, dm, "Menu item 3");
+        dropdownMenu_addItem(wm.rend, dm, "Menu item 4");
+        dropdownMenu_addItem(wm.rend, dm, "Menu item 5");
+        dropdownMenu_addItem(wm.rend, dm, "Menu item 6");
+
         // MAIN LOOP
         SDL_Event event;
         int mouse_x, mouse_y;
@@ -114,6 +123,11 @@ int main(int argc, char **argv) {
                 slider_updateValue(slider3, mouse_x, mouse_y, is_mouse_down);
                 textInputField_update(wm.rend, tif);
                 textInputField_updateFocus(tif, mouse_x, mouse_y, is_mouse_down);
+                dropdownMenu_event(dm, mouse_x, mouse_y, is_mouse_down);
+
+                if(button_event(buttons[7], mouse_x, mouse_y) && is_mouse_down) {
+                        dropdownMenu_setVisibilityTrue(dm);
+                }
 
                 // RENDER
                 SDL_SetRenderDrawColor(wm.rend, 0,0,10,0);
@@ -127,6 +141,7 @@ int main(int argc, char **argv) {
                 slider_render(wm.rend, slider2);
                 slider_render(wm.rend, slider3);
                 textInputField_render(wm.rend, tif);
+                dropdownMenu_render(wm.rend, dm);
                 SDL_RenderPresent(wm.rend);
         }
 
@@ -144,6 +159,7 @@ int main(int argc, char **argv) {
         destroySlider(slider2);
         destroySlider(slider3);
         destroyTextInputField(tif);
+        destroyDropdownMenu(dm);
 
         SDL_DestroyRenderer(wm.rend);
         SDL_DestroyWindow(wm.win);

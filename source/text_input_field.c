@@ -99,8 +99,6 @@ void textInputField_update(SDL_Renderer *rend, TextInputField tif) {
             .h = surf->h
         };
 }
-    
-    
 
 void textInputField_render(SDL_Renderer *rend, TextInputField tif) {
         int border_width = 1;
@@ -207,5 +205,4 @@ void textInputField_updateBuffer(TextInputField tif, int input_state, char *inpu
                         strcpy(tif->buffer, " ");
                 } 
         }
-        
 }

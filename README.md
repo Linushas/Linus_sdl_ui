@@ -4,9 +4,9 @@
 - Button
 - Checklist
 - Slider
+- Text Input Feild
 
 ## To Do
-- Text Input Feild
 - Dropdown menu
 - Tooltips
 - Dialogue
