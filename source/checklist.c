@@ -33,6 +33,8 @@ Checklist createChecklist(int x, int y, int size, SDL_Color fg, TTF_Font *font) 
         cb->font = font;
         cb->item_count = 0;
         cb->cooldown = 0;
+
+        return cb;
 }
 
 int checklist_addItem(SDL_Renderer *rend, Checklist cb, char *text) {

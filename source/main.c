@@ -3,6 +3,7 @@
 #include "button.h"
 #include "slider.h"
 #include "checklist.h"
+#include "text_input_field.h"
 #include "ui_extra.h"
 
 typedef struct windowModel {
@@ -34,7 +35,7 @@ int main(int argc, char **argv) {
         UIRes ui_res;
         UI_Init(&ui_res);
 
-        Button buttons[7];
+        Button buttons[8];
         createButtons(buttons, &wm, ui_res);
         int button_count = sizeof(buttons) / sizeof(Button);
 
@@ -59,6 +60,8 @@ int main(int argc, char **argv) {
         Slider slider2 = createSlider(wm.rend, 400, 100, 200, ui_res.red);
         Slider slider3 = createSlider(wm.rend, 400, 150, 240, ui_res.blue);
 
+        TextInputField tif = createTextInputField(wm.rend, createRect(400, 200, 200, 100), ui_res.black, ui_res.white, ui_res.russo_small);
+
         // MAIN LOOP
         SDL_Event event;
         int mouse_x, mouse_y;
@@ -68,16 +71,27 @@ int main(int argc, char **argv) {
                 while(SDL_PollEvent(&event)) {
                         switch(event.type) {
                                 case SDL_QUIT:
-                                    wm.is_running = false;
-                                    break;
+                                        wm.is_running = false;
+                                        break;
                                 case SDL_MOUSEBUTTONDOWN:
-                                    if(event.button.button == SDL_BUTTON_LEFT)
-                                        is_mouse_down = true;
-                                    break;
+                                        if(event.button.button == SDL_BUTTON_LEFT)
+                                                is_mouse_down = true;
+                                        break;
                                 case SDL_MOUSEBUTTONUP:
-                                    if(event.button.button == SDL_BUTTON_LEFT)
-                                        is_mouse_down = false;
-                                    break;
+                                        if(event.button.button == SDL_BUTTON_LEFT)
+                                                is_mouse_down = false;
+                                        break;
+                                case SDL_KEYDOWN:
+                                        if(textInputField_getFocus(tif)) {
+                                                if(event.key.keysym.scancode == SDL_SCANCODE_LEFT) {
+                                                        textInputField_moveCursor(tif, 0);
+                                                }
+                                                if(event.key.keysym.scancode == SDL_SCANCODE_RIGHT) {
+                                                        textInputField_moveCursor(tif, 1);
+                                                }  
+                                        }
+                                        
+                                        break;
                         }
                 }
                 SDL_GetMouseState(&mouse_x, &mouse_y);
@@ -91,6 +105,8 @@ int main(int argc, char **argv) {
                 slider_updateValue(slider, mouse_x, mouse_y, is_mouse_down);
                 slider_updateValue(slider2, mouse_x, mouse_y, is_mouse_down);
                 slider_updateValue(slider3, mouse_x, mouse_y, is_mouse_down);
+                textInputField_update(wm.rend, tif);
+                textInputField_updateFocus(tif, mouse_x, mouse_y, is_mouse_down);
 
                 // RENDER
                 SDL_SetRenderDrawColor(wm.rend, 0,0,10,0);
@@ -103,6 +119,7 @@ int main(int argc, char **argv) {
                 slider_render(wm.rend, slider);
                 slider_render(wm.rend, slider2);
                 slider_render(wm.rend, slider3);
+                textInputField_render(wm.rend, tif);
                 SDL_RenderPresent(wm.rend);
         }
 
@@ -119,6 +136,7 @@ int main(int argc, char **argv) {
         destroySlider(slider);
         destroySlider(slider2);
         destroySlider(slider3);
+        destroyTextInputField(tif);
 
         SDL_DestroyRenderer(wm.rend);
         SDL_DestroyWindow(wm.win);
@@ -189,6 +207,13 @@ int createButtons(Button *buttons, WM *wm, const UIRes ui_res) {
         );
         if(buttons[6] == NULL) return 0;
         button_setColorsHovered(wm->rend, buttons[6], ui_res.black, ui_res.white);
+
+        buttons[7] = createButton(
+                wm->rend, "Button 8", createRect(560,0,80,20), 
+                ui_res.white, ui_res.black, ui_res.russo_small
+        );
+        if(buttons[7] == NULL) return 0;
+        button_setColorsHovered(wm->rend, buttons[7], ui_res.black, ui_res.white);
 
         return 1;
 }
