@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include "panel.h"
 #include "button.h"
 #include "slider.h"
 #include "checklist.h"
@@ -11,6 +12,7 @@ typedef struct windowModel {
         SDL_Window *win;
         SDL_Renderer *rend;
         bool is_running;
+        int w, h;
 } WM;
 
 typedef struct UIResources {
@@ -28,48 +30,19 @@ int main(int argc, char **argv) {
         SDL_Init(SDL_INIT_EVERYTHING);
         TTF_Init();
 
-        WM wm = {.is_running = true};
-        wm.win = SDL_CreateWindow("UI test", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 600*16/9, 600, 0);
+        WM wm = {.is_running = true, .w = 600*16/9, .h = 600};
+        wm.win = SDL_CreateWindow("UI test", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, wm.w, wm.h, 0);
         wm.rend = SDL_CreateRenderer(wm.win, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
         // UI INIT
         UIRes ui_res;
         UI_Init(&ui_res);
 
-        Button buttons[8];
-        createButtons(buttons, &wm, ui_res);
-        int button_count = sizeof(buttons) / sizeof(Button);
+        Panel panel = createPanel(createRect(50, 50, wm.w-100, wm.h-100), ui_res.black, createColor(50, 50, 50, 255));
 
-        Checklist cb = createChecklist(50, 50, 40, ui_res.white, ui_res.russo_medium);
-        checklist_addItem(wm.rend, cb, "item 1");
-        checklist_addItem(wm.rend, cb, "item 2");
-        checklist_addItem(wm.rend, cb, "item 3");
-        checklist_addItem(wm.rend, cb, "item 5");
-        checklist_addItem(wm.rend, cb, "item 6");
-
-        Checklist cb2 = createChecklist(200, 50, 40, ui_res.white, ui_res.russo_medium);
-        checklist_addItem(wm.rend, cb2, "checkbox 7");
-        checklist_addItem(wm.rend, cb2, "checkbox 8");
-        checklist_addItem(wm.rend, cb2, "checkbox 9");
-        checklist_addItem(wm.rend, cb2, "checkbox 10");
-        checklist_addItem(wm.rend, cb2, "checkbox 11");
-        checklist_addItem(wm.rend, cb2, "checkbox 12");
-        checklist_addItem(wm.rend, cb2, "checkbox 13");
-        checklist_addItem(wm.rend, cb2, "checkbox 14");
-
-        Slider slider = createSlider(wm.rend, 400, 50, 160, ui_res.white);
-        Slider slider2 = createSlider(wm.rend, 400, 100, 200, ui_res.red);
-        Slider slider3 = createSlider(wm.rend, 400, 150, 240, ui_res.blue);
-
-        TextInputField tif = createTextInputField(wm.rend, createRect(400, 200, 200, 100), ui_res.black, ui_res.white, ui_res.russo_small);
-
-        DropdownMenu dm = createDropdownMenu(createRect(580, 10, 100, 300), ui_res.black, ui_res.white, ui_res.russo_small);
-        dropdownMenu_addItem(wm.rend, dm, "Menu item 1");
-        dropdownMenu_addItem(wm.rend, dm, "Menu item 2");
-        dropdownMenu_addItem(wm.rend, dm, "Menu item 3");
-        dropdownMenu_addItem(wm.rend, dm, "Menu item 4");
-        dropdownMenu_addItem(wm.rend, dm, "Menu item 5");
-        dropdownMenu_addItem(wm.rend, dm, "Menu item 6");
+        Button my_button = createButton(wm.rend, "Button 1", createRect(51, 51, 100, 30), ui_res.white, ui_res.black, ui_res.russo_small);
+        panel_addComponent(panel, COMPONENT_BUTTON, my_button, "my_button1");
+        button_setColorsHovered(wm.rend, my_button, createColor(50, 50, 50, 255), ui_res.white);
 
         // MAIN LOOP
         SDL_Event event;
@@ -91,57 +64,21 @@ int main(int argc, char **argv) {
                                                 is_mouse_down = false;
                                         break;
                                 case SDL_KEYDOWN:
-                                        if(textInputField_getFocus(tif)) {
-                                                if(event.key.keysym.scancode == SDL_SCANCODE_LEFT) {
-                                                        textInputField_moveCursor(tif, 0);
-                                                }
-                                                if(event.key.keysym.scancode == SDL_SCANCODE_RIGHT) {
-                                                        textInputField_moveCursor(tif, 1);
-                                                }  
-                                                if(event.key.keysym.scancode == SDL_SCANCODE_BACKSPACE) {
-                                                        textInputField_updateBuffer(tif, INPUT_BACKSPACE, "**");
-                                                }  
-                                        }
                                         break;
                                 case SDL_TEXTINPUT:
-                                        if(SDL_IsTextInputActive()) {
-                                                textInputField_updateBuffer(tif, INPUT_TEXT, event.text.text);
-                                        }
                                         break;
                         }
                 }
                 SDL_GetMouseState(&mouse_x, &mouse_y);
 
-                // POLL UI COMPONENTS
-                for(int i = 0; i < button_count; i++) {
-                        button_event(buttons[i], mouse_x, mouse_y);
-                }
-                checklist_event(cb, mouse_x, mouse_y, is_mouse_down);
-                checklist_event(cb2, mouse_x, mouse_y, is_mouse_down);
-                slider_updateValue(slider, mouse_x, mouse_y, is_mouse_down);
-                slider_updateValue(slider2, mouse_x, mouse_y, is_mouse_down);
-                slider_updateValue(slider3, mouse_x, mouse_y, is_mouse_down);
-                textInputField_update(wm.rend, tif);
-                textInputField_updateFocus(tif, mouse_x, mouse_y, is_mouse_down);
-                dropdownMenu_event(dm, mouse_x, mouse_y, is_mouse_down);
-
-                if(button_event(buttons[7], mouse_x, mouse_y) && is_mouse_down) {
-                        dropdownMenu_setVisibilityTrue(dm);
-                }
+                button_event(my_button, mouse_x, mouse_y);
 
                 // RENDER
                 SDL_SetRenderDrawColor(wm.rend, 0,0,10,0);
                 SDL_RenderClear(wm.rend);
-                for(int i = 0; i < button_count; i++) {
-                        button_render(wm.rend, buttons[i]);
-                }
-                checklist_render(wm.rend, cb);
-                checklist_render(wm.rend, cb2);
-                slider_render(wm.rend, slider);
-                slider_render(wm.rend, slider2);
-                slider_render(wm.rend, slider3);
-                textInputField_render(wm.rend, tif);
-                dropdownMenu_render(wm.rend, dm);
+
+                panel_render(wm.rend, panel);
+
                 SDL_RenderPresent(wm.rend);
         }
 
@@ -150,16 +87,7 @@ int main(int argc, char **argv) {
         TTF_CloseFont(ui_res.russo_small);
         TTF_CloseFont(ui_res.russo_medium);
 
-        for(int i = 0; i < button_count; i++) {
-                destroyButton(buttons[i]);
-        }
-        destroyChecklist(cb);
-        destroyChecklist(cb2);
-        destroySlider(slider);
-        destroySlider(slider2);
-        destroySlider(slider3);
-        destroyTextInputField(tif);
-        destroyDropdownMenu(dm);
+        destroyPanel(panel);
 
         SDL_DestroyRenderer(wm.rend);
         SDL_DestroyWindow(wm.win);
@@ -178,65 +106,5 @@ int UI_Init(UIRes *res) {
         res->red = createColor(255, 0, 0, 255);
         res->green = createColor(0, 255, 0, 255);
         res->blue = createColor(0, 0, 255, 255);
-        return 1;
-}
-
-int createButtons(Button *buttons, WM *wm, const UIRes ui_res) {
-        buttons[0] = createButton(
-                wm->rend, "Button 1", createRect(0,0,80,20), 
-                ui_res.white, ui_res.black, ui_res.russo_small
-        );
-        if(buttons[0] == NULL) return 0;
-        button_setColorsHovered(wm->rend, buttons[0], ui_res.black, ui_res.white);
-
-        buttons[1] = createButton(
-                wm->rend, "Button 2", createRect(80,0,80,20), 
-                ui_res.white, ui_res.black, ui_res.russo_small
-        );
-        if(buttons[1] == NULL) return 0;
-        button_setColorsHovered(wm->rend, buttons[1], ui_res.black, ui_res.white);
-
-        buttons[2] = createButton(
-                wm->rend, "Button 3", createRect(160,0,80,20), 
-                ui_res.white, ui_res.black, ui_res.russo_small
-        );
-        if(buttons[2] == NULL) return 0;
-        button_setColorsHovered(wm->rend, buttons[2], ui_res.black, ui_res.white);
-
-        buttons[3] = createButton(
-                wm->rend, "Button 4", createRect(240,0,80,20), 
-                ui_res.white, ui_res.black, ui_res.russo_small
-        );
-        if(buttons[3] == NULL) return 0;
-        button_setColorsHovered(wm->rend, buttons[3], ui_res.black, ui_res.white);
-
-        buttons[4] = createButton(
-                wm->rend, "Button 5", createRect(320,0,80,20), 
-                ui_res.white, ui_res.black, ui_res.russo_small
-        );
-        if(buttons[4] == NULL) return 0;
-        button_setColorsHovered(wm->rend, buttons[4], ui_res.black, ui_res.white);
-
-        buttons[5] = createButton(
-                wm->rend, "Button 6", createRect(400,0,80,20), 
-                ui_res.white, ui_res.black, ui_res.russo_small
-        );
-        if(buttons[5] == NULL) return 0;
-        button_setColorsHovered(wm->rend, buttons[5], ui_res.black, ui_res.white);
-
-        buttons[6] = createButton(
-                wm->rend, "Button 7", createRect(480,0,80,20), 
-                ui_res.white, ui_res.black, ui_res.russo_small
-        );
-        if(buttons[6] == NULL) return 0;
-        button_setColorsHovered(wm->rend, buttons[6], ui_res.black, ui_res.white);
-
-        buttons[7] = createButton(
-                wm->rend, "Button 8", createRect(560,0,80,20), 
-                ui_res.white, ui_res.black, ui_res.russo_small
-        );
-        if(buttons[7] == NULL) return 0;
-        button_setColorsHovered(wm->rend, buttons[7], ui_res.black, ui_res.white);
-
         return 1;
 }

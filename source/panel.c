@@ -1,0 +1,118 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "panel.h"
+#include "button.h"
+#include "slider.h"
+#include "checklist.h"
+#include "text_input_field.h"
+#include "dropdown_menu.h"
+
+typedef struct Component {
+        char *key;
+        void *component;
+        int type;
+} Component;
+
+typedef struct Panel {
+        SDL_Rect rect;
+        SDL_Color bg, border_color;
+
+        struct ChildComponents {
+                int component_count;
+                Component *component_list;
+        };
+} *Panel;
+
+Panel createPanel(SDL_Rect rect, SDL_Color bg, SDL_Color border_color) {
+        Panel panel = malloc(sizeof(struct Panel));
+        if (panel == NULL) {
+                printf("Failed to allocate memory for Panel\n");
+                return NULL;
+        }
+
+        panel->rect = rect;
+        panel->bg = bg;
+        panel->border_color = border_color;
+        panel->component_count = 0;
+        panel->component_list = NULL;
+
+        return panel;
+}
+
+int panel_addComponent(Panel p, int type, void *component, char *key) {
+        p->component_count++;
+
+        p->component_list = realloc(p->component_list, p->component_count * sizeof(Component));
+        if (p->component_list == NULL) {
+                printf("Failed to reallocate memory for component list : panel\n");
+                return false; 
+        }
+
+        p->component_list[p->component_count - 1].key = malloc(strlen(key) + 1);
+        if (p->component_list[p->component_count - 1].key == NULL) {
+                printf("Failed to allocate memory for component key\n");
+                return false;
+        }
+        strcpy(p->component_list[p->component_count - 1].key, key);
+
+        p->component_list[p->component_count - 1].component = component;
+        p->component_list[p->component_count - 1].type = type;
+
+        return true;
+}
+
+void panel_render(SDL_Renderer *rend, Panel p) {
+        if (p == NULL) {
+            printf("Error: Attempting to render a NULL Panel.\n");
+            return;
+        }
+    
+        SDL_SetRenderDrawColor(rend, p->bg.r, p->bg.g, p->bg.b, p->bg.a);
+        SDL_RenderFillRect(rend, &p->rect);
+    
+        SDL_SetRenderDrawColor(rend, p->border_color.r, p->border_color.g, p->border_color.b, p->border_color.a);
+        SDL_RenderDrawRect(rend, &p->rect);
+    
+        for (int i = 0; i < p->component_count; i++) {
+            Component comp = p->component_list[i];
+            switch (comp.type) {
+                case COMPONENT_BUTTON:
+                    button_render(rend, (Button)comp.component);
+                    break;
+    
+                case COMPONENT_CHECKLIST:
+                    checklist_render(rend, (Checklist)comp.component);
+                    break;
+
+                case COMPONENT_SLIDER:
+                    slider_render(rend, (Slider)comp.component);
+                    break;
+    
+                case COMPONENT_TEXT_INPUT_FIELD:
+                    textInputField_render(rend, (TextInputField)comp.component);
+                    break;
+    
+                case COMPONENT_DROPDOWN_MENU:
+                    dropdownMenu_render(rend, (DropdownMenu)comp.component);
+                    break;
+    
+                default:
+                    printf("Warning: Unknown component type (%d) in panel_render.\n", comp.type);
+                    break;
+            }
+        }
+}
+
+int destroyPanel(Panel p) {
+        if (p == NULL) return -1;
+
+        for (int i = 0; i < p->component_count; i++) {
+                free(p->component_list[i].key);
+                free(p->component_list[i].component);
+        }
+
+        free(p->component_list);
+        free(p);
+
+        return 0;
+}

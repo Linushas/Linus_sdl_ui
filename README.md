@@ -6,10 +6,10 @@
 - Slider
 - Text Input Feild
 - Dropdown menu
+- Panel / Card
 
 ## To Do
-- Tooltips
-- Dialogue
 - Label / Text
+- Dialogue
+- Tooltips
 - Radio Button Group
-- Panel / Card
