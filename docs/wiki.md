@@ -25,6 +25,10 @@ int panel_addComponent(Panel p, int type, void *component, char *key);
 ```c
 void *panel_getComponent(Panel p, char *key);
 ```
+### panel_hideComponent
+```c
+void panel_hideComponent(Panel p, char *key, bool hide);
+```
 ---
 ## Component: Button
 ### createButton

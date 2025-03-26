@@ -21,5 +21,6 @@ int panel_update(SDL_Renderer *rend, Panel p, UI_Event *ui_event, int mouse_x, i
 int destroyPanel(Panel p);
 int panel_addComponent(Panel p, int type, void *component, char *key);
 void *panel_getComponent(Panel p, char *key);
+void panel_hideComponent(Panel p, char *key, bool hide);
 
 #endif
