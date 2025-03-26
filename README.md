@@ -6,10 +6,14 @@
 - Slider
 - Text Input Feild
 - Dropdown menu
-- Panel / Card
+- Panel
 
 ## To Do
 - Label / Text
 - Dialogue
 - Tooltips
 - Radio Button Group
+
+## Dependencies
+- SDL2
+- SDL_ttf

@@ -70,7 +70,10 @@ int main(int argc, char **argv) {
         dropdownMenu_addItem(wm.rend, my_dropdownMenu, "Spanish");
         dropdownMenu_addItem(wm.rend, my_dropdownMenu, "Japanese");
         dropdownMenu_addItem(wm.rend, my_dropdownMenu, "French");
-
+        
+        TextInputField my_tif = createTextInputField(wm.rend, createRect(600, 100, 200, 100), ui_res.black, ui_res.white, ui_res.russo_small);
+        panel_addComponent(panel, COMPONENT_TEXT_INPUT_FIELD, my_tif, "text_input_field1");
+        
         // MAIN LOOP
         SDL_Event event;
         int mouse_x, mouse_y;
@@ -91,14 +94,26 @@ int main(int argc, char **argv) {
                                                 is_mouse_down = false;
                                         break;
                                 case SDL_KEYDOWN:
+                                        if(textInputField_getFocus(my_tif)) {
+                                                if(event.key.keysym.scancode == SDL_SCANCODE_LEFT)
+                                                        textInputField_moveCursor(my_tif, 0);
+                                                else if(event.key.keysym.scancode == SDL_SCANCODE_RIGHT)
+                                                        textInputField_moveCursor(my_tif, 1);
+                                                
+                                                if(event.key.keysym.scancode == SDL_SCANCODE_BACKSPACE)
+                                                        textInputField_updateBuffer(my_tif, INPUT_BACKSPACE, "");
+                                        }       
                                         break;
                                 case SDL_TEXTINPUT:
+                                        if(textInputField_getFocus(my_tif)) {
+                                                textInputField_updateBuffer(my_tif, INPUT_TEXT, event.text.text);
+                                        }  
                                         break;
                         }
                 }
 
                 SDL_GetMouseState(&mouse_x, &mouse_y);
-                panel_update(panel, &ui_event, mouse_x, mouse_y, is_mouse_down);
+                panel_update(wm.rend, panel, &ui_event, mouse_x, mouse_y, is_mouse_down);
 
                 switch(ui_event.event_type) {
                         case BUTTON_CLICKED:

@@ -62,7 +62,7 @@ int panel_addComponent(Panel p, int type, void *component, char *key) {
         return true;
 }
 
-int panel_update(Panel p, UI_Event *ui_event, int mouse_x, int mouse_y, bool is_mouse_down) {
+int panel_update(SDL_Renderer *rend, Panel p, UI_Event *ui_event, int mouse_x, int mouse_y, bool is_mouse_down) {
         ui_event->item_idx = -1;
         
         if (p == NULL) {
@@ -95,7 +95,8 @@ int panel_update(Panel p, UI_Event *ui_event, int mouse_x, int mouse_y, bool is_
                                 break;
 
                         case COMPONENT_TEXT_INPUT_FIELD:
-                                
+                                textInputField_updateFocus((TextInputField)comp.component, mouse_x, mouse_y, is_mouse_down);
+                                textInputField_update(rend, (TextInputField)comp.component);
                                 break;
 
                         case COMPONENT_DROPDOWN_MENU:

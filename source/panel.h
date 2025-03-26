@@ -17,7 +17,7 @@ typedef struct UI_Event {
 
 Panel createPanel(SDL_Rect rect, SDL_Color bg, SDL_Color border_color);
 void panel_render(SDL_Renderer *rend, Panel p);
-int panel_update(Panel p, UI_Event *ui_event, int mouse_x, int mouse_y, bool is_mouse_down);
+int panel_update(SDL_Renderer *rend, Panel p, UI_Event *ui_event, int mouse_x, int mouse_y, bool is_mouse_down);
 int destroyPanel(Panel p);
 int panel_addComponent(Panel p, int type, void *component, char *key);
 void *panel_getComponent(Panel p, char *key);
