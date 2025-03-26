@@ -9,10 +9,9 @@
 - Panel
 
 ## To Do
-- Label / Text
+- Label
 - Dialogue
-- Tooltips
-- Radio Button Group
+- Tooltip
 
 ## Dependencies
 - SDL2
