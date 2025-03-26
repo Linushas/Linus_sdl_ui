@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include "SDL_include.h"
 
+enum InputStates{INPUT_NONE, INPUT_TEXT, INPUT_BACKSPACE, INPUT_ENTER};
+
 typedef struct TextInputField *TextInputField;
 
 TextInputField createTextInputField(SDL_Renderer *rend, SDL_Rect rect, SDL_Color bg, SDL_Color fg, TTF_Font *font);
@@ -13,5 +15,6 @@ void textInputField_render(SDL_Renderer *rend, TextInputField tif);
 void textInputField_moveCursor(TextInputField tif, int direction); // 0 : left, 1 : right
 bool textInputField_getFocus(TextInputField tif);
 bool textInputField_updateFocus(TextInputField tif, int mouse_x, int mouse_y, bool is_mouse_down);
+void textInputField_updateBuffer(TextInputField tif, int input_state, char *input);
 
 #endif

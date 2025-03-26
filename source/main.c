@@ -89,8 +89,15 @@ int main(int argc, char **argv) {
                                                 if(event.key.keysym.scancode == SDL_SCANCODE_RIGHT) {
                                                         textInputField_moveCursor(tif, 1);
                                                 }  
+                                                if(event.key.keysym.scancode == SDL_SCANCODE_BACKSPACE) {
+                                                        textInputField_updateBuffer(tif, INPUT_BACKSPACE, "**");
+                                                }  
                                         }
-                                        
+                                        break;
+                                case SDL_TEXTINPUT:
+                                        if(SDL_IsTextInputActive()) {
+                                                textInputField_updateBuffer(tif, INPUT_TEXT, event.text.text);
+                                        }
                                         break;
                         }
                 }
