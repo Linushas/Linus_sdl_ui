@@ -5,9 +5,9 @@
 - Checklist
 - Slider
 - Text Input Feild
+- Dropdown menu
 
 ## To Do
-- Dropdown menu
 - Tooltips
 - Dialogue
 - Label / Text
