@@ -118,8 +118,8 @@ int dropdownMenu_event(DropdownMenu dm, int mouse_x, int mouse_y, bool is_mouse_
                 if(is_mouse_down && counter > 20) {
                         counter = 0;
                         dm->is_visible = false;
+                        return dm->selected_idx = idx;
                 } 
-                return dm->selected_idx = idx;
         } 
         return -1;
 }

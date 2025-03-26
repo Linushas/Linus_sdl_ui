@@ -52,9 +52,10 @@ float slider_updateValue(Slider s, int mouse_x, int mouse_y, bool is_mouse_down)
         if (s->is_dragging) {
             float raw_value = (float)(mouse_x - s->x - s->drag_offset) / (float)s->w;
             s->value = fmaxf(0.0f, fminf(1.0f, raw_value));
+            return s->value;
         }
-    
-        return s->value;
+
+        return -1;
 }
 
 float slider_getValue(Slider s) {return s->value;}

@@ -48,7 +48,6 @@ int main(int argc, char **argv) {
         int mouse_x, mouse_y;
         bool is_mouse_down = 0;
         while(wm.is_running) {
-                // SDL EVENT
                 while(SDL_PollEvent(&event)) {
                         switch(event.type) {
                                 case SDL_QUIT:
@@ -70,9 +69,10 @@ int main(int argc, char **argv) {
                 }
                 SDL_GetMouseState(&mouse_x, &mouse_y);
 
-                panel_update(panel, mouse_x, mouse_y, is_mouse_down);
+                if(panel_update(panel, mouse_x, mouse_y, is_mouse_down) == BUTTON_CLICKED) {
+                        printf("Button was clicked\n");
+                }
 
-                // RENDER
                 SDL_SetRenderDrawColor(wm.rend, 0,0,10,0);
                 SDL_RenderClear(wm.rend);
                 panel_render(wm.rend, panel);

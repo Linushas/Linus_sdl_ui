@@ -71,15 +71,18 @@ int panel_update(Panel p, int mouse_x, int mouse_y, bool is_mouse_down) {
                 Component comp = p->component_list[i];
                 switch (comp.type) {
                         case COMPONENT_BUTTON:
-                                button_event((Button)comp.component, mouse_x, mouse_y);
+                                if(button_event((Button)comp.component, mouse_x, mouse_y) && is_mouse_down)
+                                        return BUTTON_CLICKED;
                                 break;
 
                         case COMPONENT_CHECKLIST:
-                                checklist_event((Checklist)comp.component, mouse_x, mouse_y, is_mouse_down);
+                                if(checklist_event((Checklist)comp.component, mouse_x, mouse_y, is_mouse_down) != -1)
+                                        return CHECKLIST_UPDATED;
                                 break;
 
                         case COMPONENT_SLIDER:
-                                slider_updateValue((Slider)comp.component, mouse_x, mouse_y, is_mouse_down);
+                                if(slider_updateValue((Slider)comp.component, mouse_x, mouse_y, is_mouse_down) != -1)
+                                        return SLIDER_UPDATED;
                                 break;
 
                         case COMPONENT_TEXT_INPUT_FIELD:
@@ -87,7 +90,8 @@ int panel_update(Panel p, int mouse_x, int mouse_y, bool is_mouse_down) {
                                 break;
 
                         case COMPONENT_DROPDOWN_MENU:
-                                dropdownMenu_event((DropdownMenu)comp.component, mouse_x, mouse_y, is_mouse_down);
+                                if(dropdownMenu_event((DropdownMenu)comp.component, mouse_x, mouse_y, is_mouse_down) != -1)
+                                        return DROPDOWN_ITEM_CLICKED;
                                 break;
 
                         default:
