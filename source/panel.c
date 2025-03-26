@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "panel.h"
 #include "button.h"
 #include "slider.h"
@@ -61,28 +62,34 @@ int panel_addComponent(Panel p, int type, void *component, char *key) {
         return true;
 }
 
-int panel_update(Panel p, int mouse_x, int mouse_y, bool is_mouse_down) {
+int panel_update(Panel p, UI_Event *ui_event, int mouse_x, int mouse_y, bool is_mouse_down) {
         if (p == NULL) {
                 printf("Error: Attempting to render a NULL Panel.\n");
-                return -1;
+                return ui_event->event_type = -1;
         }
 
         for (int i = 0; i < p->component_count; i++) {
                 Component comp = p->component_list[i];
                 switch (comp.type) {
                         case COMPONENT_BUTTON:
-                                if(button_event((Button)comp.component, mouse_x, mouse_y) && is_mouse_down)
-                                        return BUTTON_CLICKED;
+                                if(button_event((Button)comp.component, mouse_x, mouse_y) && is_mouse_down) {
+                                        strcpy(ui_event->component_key, comp.key);
+                                        return ui_event->event_type = BUTTON_CLICKED;
+                                }
                                 break;
 
                         case COMPONENT_CHECKLIST:
-                                if(checklist_event((Checklist)comp.component, mouse_x, mouse_y, is_mouse_down) != -1)
-                                        return CHECKLIST_UPDATED;
+                                if(checklist_event((Checklist)comp.component, mouse_x, mouse_y, is_mouse_down) != -1) {
+                                        strcpy(ui_event->component_key, comp.key);
+                                        return ui_event->event_type = CHECKLIST_UPDATED;
+                                }
                                 break;
 
                         case COMPONENT_SLIDER:
-                                if(slider_updateValue((Slider)comp.component, mouse_x, mouse_y, is_mouse_down) != -1)
-                                        return SLIDER_UPDATED;
+                                if(slider_updateValue((Slider)comp.component, mouse_x, mouse_y, is_mouse_down) != -1) {
+                                        strcpy(ui_event->component_key, comp.key);
+                                        return ui_event->event_type = SLIDER_UPDATED;
+                                }
                                 break;
 
                         case COMPONENT_TEXT_INPUT_FIELD:
@@ -90,8 +97,10 @@ int panel_update(Panel p, int mouse_x, int mouse_y, bool is_mouse_down) {
                                 break;
 
                         case COMPONENT_DROPDOWN_MENU:
-                                if(dropdownMenu_event((DropdownMenu)comp.component, mouse_x, mouse_y, is_mouse_down) != -1)
-                                        return DROPDOWN_ITEM_CLICKED;
+                                if(dropdownMenu_event((DropdownMenu)comp.component, mouse_x, mouse_y, is_mouse_down) != -1) {
+                                        strcpy(ui_event->component_key, comp.key);
+                                        return ui_event->event_type = DROPDOWN_ITEM_CLICKED;
+                                }
                                 break;
 
                         default:
@@ -100,7 +109,17 @@ int panel_update(Panel p, int mouse_x, int mouse_y, bool is_mouse_down) {
                 }
         }
 
-        return -1;
+        return ui_event->event_type = -1;
+}
+
+void *panel_getComponent(Panel p, char *key) {
+        for(int i = 0; i < p->component_count; i++) {
+                Component comp = p->component_list[i];
+                if(strcmp(key, comp.key) == 0) {
+                        return comp.component;
+                }
+        }
+        return NULL;
 }
 
 void panel_render(SDL_Renderer *rend, Panel p) {

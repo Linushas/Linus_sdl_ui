@@ -10,7 +10,7 @@ typedef struct Slider {
         SDL_Color fg;
 } *Slider;
 
-Slider createSlider(SDL_Renderer *rend, int x, int y, int w, SDL_Color fg) {
+Slider createSlider(int x, int y, int w, SDL_Color fg) {
         Slider s = malloc(sizeof(struct Slider));
         if (s == NULL) {
                 printf("Error: Failed to allocate memory for Slider.\n");

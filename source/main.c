@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdbool.h>
 #include "panel.h"
 #include "button.h"
@@ -38,10 +39,14 @@ int main(int argc, char **argv) {
         UI_Init(&ui_res);
 
         Panel panel = createPanel(createRect(50, 50, wm.w-100, wm.h-100), ui_res.black, createColor(50, 50, 50, 255));
+        UI_Event ui_event;
 
         Button my_button = createButton(wm.rend, "Button 1", createRect(51, 51, 100, 30), ui_res.white, ui_res.black, ui_res.russo_small);
         panel_addComponent(panel, COMPONENT_BUTTON, my_button, "my_button1");
         button_setColorsHovered(wm.rend, my_button, createColor(50, 50, 50, 255), ui_res.white);
+
+        Slider my_slider = createSlider(100, 100, 200, ui_res.white);
+        panel_addComponent(panel, COMPONENT_SLIDER, my_slider, "slider123");
 
         // MAIN LOOP
         SDL_Event event;
@@ -67,12 +72,22 @@ int main(int argc, char **argv) {
                                         break;
                         }
                 }
-                SDL_GetMouseState(&mouse_x, &mouse_y);
 
-                if(panel_update(panel, mouse_x, mouse_y, is_mouse_down) == BUTTON_CLICKED) {
+                SDL_GetMouseState(&mouse_x, &mouse_y);
+                panel_update(panel, &ui_event, mouse_x, mouse_y, is_mouse_down);
+
+                if(strcmp(ui_event.component_key, "my_button1") == 0 && ui_event.event_type == BUTTON_CLICKED) {
                         printf("Button was clicked\n");
                 }
 
+                Slider secret_slider;
+                if((secret_slider = panel_getComponent(panel, "slider123")) != NULL) {
+                        float value = slider_getValue(secret_slider);
+                        if(ui_event.event_type == SLIDER_UPDATED) {
+                                printf("value: %.3f\n", value);
+                        }        
+                }
+                
                 SDL_SetRenderDrawColor(wm.rend, 0,0,10,0);
                 SDL_RenderClear(wm.rend);
                 panel_render(wm.rend, panel);
