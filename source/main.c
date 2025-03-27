@@ -4,6 +4,7 @@
 #include "panel.h"
 #include "button.h"
 #include "slider.h"
+#include "label.h"
 #include "checklist.h"
 #include "text_input_field.h"
 #include "dropdown_menu.h"
@@ -172,6 +173,9 @@ int setupComponents(SDL_Renderer *rend, Panel *panels, UIRes ui_res) {
                 panel_addComponent(panels[2], COMPONENT_BUTTON, btns[i], btn_keys[i]);
                 button_setColorsHovered(rend, btns[i], ui_res.slate_grey, ui_res.white);
         }
+
+        Label label = createLabel(rend, 300, 300, "Hello World!", ui_res.white, ui_res.montserrat_big);
+        panel_addComponent(panels[3], COMPONENT_LABEL, label, "label1");
         
         return true;
 }

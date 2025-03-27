@@ -7,6 +7,7 @@
 #include "checklist.h"
 #include "text_input_field.h"
 #include "dropdown_menu.h"
+#include "label.h"
 
 typedef struct Component {
         char *key;
@@ -118,6 +119,8 @@ int panel_update(SDL_Renderer *rend, Panel p, UI_Event *ui_event, int mouse_x, i
                                         return ui_event->event_type = DROPDOWN_ITEM_CLICKED;
                                 }
                                 break;
+                        case COMPONENT_LABEL:
+                                break;
 
                         default:
                                 printf("Warning: Unknown component type (%d) in panel_update.\n", comp.type);
@@ -156,29 +159,33 @@ void panel_render(SDL_Renderer *rend, Panel p) {
             if(comp.hidden) continue;
 
             switch (comp.type) {
-                case COMPONENT_BUTTON:
-                    button_render(rend, (Button)comp.component);
-                    break;
-    
-                case COMPONENT_CHECKLIST:
-                    checklist_render(rend, (Checklist)comp.component);
-                    break;
+                        case COMPONENT_BUTTON:
+                                button_render(rend, (Button)comp.component);
+                                break;
 
-                case COMPONENT_SLIDER:
-                    slider_render(rend, (Slider)comp.component);
-                    break;
-    
-                case COMPONENT_TEXT_INPUT_FIELD:
-                    textInputField_render(rend, (TextInputField)comp.component);
-                    break;
-    
-                case COMPONENT_DROPDOWN_MENU:
-                    dropdownMenu_render(rend, (DropdownMenu)comp.component);
-                    break;
-    
-                default:
-                    printf("Warning: Unknown component type (%d) in panel_render.\n", comp.type);
-                    break;
+                        case COMPONENT_CHECKLIST:
+                                checklist_render(rend, (Checklist)comp.component);
+                                break;
+
+                        case COMPONENT_SLIDER:
+                                slider_render(rend, (Slider)comp.component);
+                                break;
+
+                        case COMPONENT_TEXT_INPUT_FIELD:
+                                textInputField_render(rend, (TextInputField)comp.component);
+                                break;
+
+                        case COMPONENT_DROPDOWN_MENU:
+                                dropdownMenu_render(rend, (DropdownMenu)comp.component);
+                                break;
+                        
+                        case COMPONENT_LABEL:
+                                label_render(rend, (Label)comp.component);
+                                break;
+
+                        default:
+                                printf("Warning: Unknown component type (%d) in panel_render.\n", comp.type);
+                                break;
             }
         }
 }
