@@ -18,6 +18,7 @@ typedef struct Component {
 typedef struct Panel {
         SDL_Rect rect;
         SDL_Color bg, border_color;
+        bool hidden;
 
         struct ChildComponents {
                 int component_count;
@@ -37,8 +38,13 @@ Panel createPanel(SDL_Rect rect, SDL_Color bg, SDL_Color border_color) {
         panel->border_color = border_color;
         panel->component_count = 0;
         panel->component_list = NULL;
+        panel->hidden = false;
 
         return panel;
+}
+
+void panel_hide(Panel p, bool hide) {
+        p->hidden = hide;
 }
 
 int panel_addComponent(Panel p, int type, void *component, char *key) {
@@ -65,6 +71,7 @@ int panel_addComponent(Panel p, int type, void *component, char *key) {
 }
 
 int panel_update(SDL_Renderer *rend, Panel p, UI_Event *ui_event, int mouse_x, int mouse_y, bool is_mouse_down) {
+        if(p->hidden) return ui_event->event_type = -1;
         ui_event->item_idx = -1;
         
         if (p == NULL) {
@@ -132,6 +139,7 @@ void *panel_getComponent(Panel p, char *key) {
 }
 
 void panel_render(SDL_Renderer *rend, Panel p) {
+        if(p->hidden) return;
         if (p == NULL) {
             printf("Error: Attempting to render a NULL Panel.\n");
             return;

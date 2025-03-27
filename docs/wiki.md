@@ -29,6 +29,10 @@ void *panel_getComponent(Panel p, char *key);
 ```c
 void panel_hideComponent(Panel p, char *key, bool hide);
 ```
+### panel_hide
+```c
+void panel_hide(Panel p, bool hide)
+```
 ---
 ## Component: Button
 ### createButton

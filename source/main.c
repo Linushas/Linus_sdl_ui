@@ -9,6 +9,8 @@
 #include "dropdown_menu.h"
 #include "ui_extra.h"
 
+#define PANEL_AMOUNT 5
+
 typedef struct windowModel {
         SDL_Window *win;
         SDL_Renderer *rend;
@@ -32,10 +34,21 @@ typedef struct UIResources {
 } UIRes;
 
 int UI_Init(UIRes *res);
-void cleanUp(UIRes *ui_res, Panel panel, WM *wm);
-void render(SDL_Renderer *rend, Panel panel);
-int setupComponents(SDL_Renderer *rend, Panel panel, UIRes ui_res);
+void cleanUp(UIRes *ui_res, Panel *panels, WM *wm);
+void render(SDL_Renderer *rend, Panel *panels);
+int setupComponents(SDL_Renderer *rend, Panel *panels, UIRes ui_res);
 int eventHandler(WM *wm);
+
+void setTab(Panel *panels, int tab) {
+        for(int i = 1; i < PANEL_AMOUNT; i++) {
+                if(i == tab+1) {
+                        panel_hide(panels[i], false);
+                }
+                else {
+                        panel_hide(panels[i], true);
+                }
+        }
+}
 
 int main(int argc, char **argv) {
         SDL_Init(SDL_INIT_EVERYTHING);
@@ -47,71 +60,43 @@ int main(int argc, char **argv) {
 
         UIRes ui_res;
         UI_Init(&ui_res);
-        Panel panel = createPanel(createRect(0, 0, wm.w, wm.h), ui_res.raisin_black, ui_res.raisin_black);
+        Panel panels[PANEL_AMOUNT];
+        panels[0] = createPanel(createRect(0, 0, wm.w, 20), ui_res.raisin_black, ui_res.charcoal);
+        panels[1] = createPanel(createRect(0, 20, wm.w, wm.h - 20), ui_res.raisin_black, ui_res.raisin_black);
+        panels[2] = createPanel(createRect(0, 20, wm.w, wm.h - 20), ui_res.raisin_black, ui_res.raisin_black);
+        panels[3] = createPanel(createRect(0, 20, wm.w, wm.h - 20), ui_res.raisin_black, ui_res.raisin_black);
+        panels[4] = createPanel(createRect(0, 20, wm.w, wm.h - 20), ui_res.raisin_black, ui_res.raisin_black);
         UI_Event ui_event;
-        setupComponents(wm.rend, panel, ui_res);
+        setupComponents(wm.rend, panels, ui_res);
+        setTab(panels, 0);
         
-        int current_tab = 1;
+        int current_tab = 0;
         int tab_count = 4;
         char *tab_keys[4] = {"tab1", "tab2", "tab3", "tab4"};
-        char *slider_keys[6] = {"sldr1", "sldr2", "sldr3", "sldr4", "sldr5", "sldr6"};
-        char *btn_keys[4] = {"btn1", "btn2", "btn3", "btn4"};
         while(wm.is_running) {
                 eventHandler(&wm);
 
                 SDL_GetMouseState(&wm.mouse_x, &wm.mouse_y);
-                panel_update(wm.rend, panel, &ui_event, wm.mouse_x, wm.mouse_y, wm.is_mouse_down);
-
-                switch(ui_event.event_type) {
-                        case BUTTON_CLICKED:
-                                for(int i = 0; i < tab_count; i++) {
-                                        if(strcmp(ui_event.component_key, tab_keys[i]) == 0) {
-                                                current_tab = i+1;
-                                                break;
+                for(int i = 0; i < PANEL_AMOUNT; i++) {
+                        panel_update(wm.rend, panels[i], &ui_event, wm.mouse_x, wm.mouse_y, wm.is_mouse_down);
+                
+                        switch(ui_event.event_type) {
+                                case BUTTON_CLICKED:
+                                        for(int i = 0; i < tab_count; i++) {
+                                                if(strcmp(ui_event.component_key, tab_keys[i]) == 0) {
+                                                        current_tab = i;
+                                                        setTab(panels, current_tab);
+                                                        break;
+                                                }
                                         }
-                                }
-                                break;
+                                        break;
+                        }
                 }
                 
-                switch(current_tab) {
-                        case 1:
-                                for(int i = 0; i < 6; i++) {
-                                        panel_hideComponent(panel, slider_keys[i], true);
-                                }
-                                for(int i = 0; i < 4; i++) {
-                                        panel_hideComponent(panel, btn_keys[i], false);
-                                }
-                                break;
-                        case 2:
-                                for(int i = 0; i < 6; i++) {
-                                        panel_hideComponent(panel, slider_keys[i], false);
-                                }
-                                for(int i = 0; i < 4; i++) {
-                                        panel_hideComponent(panel, btn_keys[i], true);
-                                }
-                                break;
-                        case 3:
-                                for(int i = 0; i < 6; i++) {
-                                        panel_hideComponent(panel, slider_keys[i], true);
-                                }
-                                for(int i = 0; i < 4; i++) {
-                                        panel_hideComponent(panel, btn_keys[i], true);
-                                }
-                                break;
-                        case 4:
-                                for(int i = 0; i < 6; i++) {
-                                        panel_hideComponent(panel, slider_keys[i], true);
-                                }
-                                for(int i = 0; i < 4; i++) {
-                                        panel_hideComponent(panel, btn_keys[i], true);
-                                }
-                                break;
-                }
-                
-                render(wm.rend, panel);
+                render(wm.rend, panels);
         }
 
-        cleanUp(&ui_res, panel, &wm);
+        cleanUp(&ui_res, panels, &wm);
         TTF_Quit();
         SDL_Quit();
         return 0;
@@ -134,6 +119,7 @@ int eventHandler(WM *wm) {
                                         wm->is_mouse_down = false;
                                 break;
                         case SDL_KEYDOWN:
+                        //text input
                                 // if(textInputField_getFocus(my_tif)) {
                                 //         if(event.key.keysym.scancode == SDL_SCANCODE_LEFT)
                                 //                 textInputField_moveCursor(my_tif, 0);
@@ -145,6 +131,7 @@ int eventHandler(WM *wm) {
                                 // }       
                                 break;
                         case SDL_TEXTINPUT:
+                        //text input
                                 // if(textInputField_getFocus(my_tif)) {
                                 //         textInputField_updateBuffer(my_tif, INPUT_TEXT, event.text.text);
                                 // }  
@@ -153,50 +140,52 @@ int eventHandler(WM *wm) {
         }
 }
 
-int setupComponents(SDL_Renderer *rend, Panel panel, UIRes ui_res) {
+int setupComponents(SDL_Renderer *rend, Panel *panels, UIRes ui_res) {
         Button tabs[4];
-        tabs[0] = createButton(rend, "Tab 1", createRect(100, 0, 100, 20), ui_res.charcoal, ui_res.grey, ui_res.montserrat_small);
-        panel_addComponent(panel, COMPONENT_BUTTON, tabs[0], "tab1");
+        tabs[0] = createButton(rend, "Tab 1", createRect(0, 0, 100, 20), ui_res.charcoal, ui_res.grey, ui_res.montserrat_small);
+        panel_addComponent(panels[0], COMPONENT_BUTTON, tabs[0], "tab1");
         button_setColorsHovered(rend, tabs[0], ui_res.slate_grey, ui_res.white);
 
-        tabs[1] = createButton(rend, "Tab 2", createRect(200, 0, 100, 20), ui_res.charcoal, ui_res.grey, ui_res.montserrat_small);
-        panel_addComponent(panel, COMPONENT_BUTTON, tabs[1], "tab2");
+        tabs[1] = createButton(rend, "Tab 2", createRect(100, 0, 100, 20), ui_res.charcoal, ui_res.grey, ui_res.montserrat_small);
+        panel_addComponent(panels[0], COMPONENT_BUTTON, tabs[1], "tab2");
         button_setColorsHovered(rend, tabs[1], ui_res.slate_grey, ui_res.white);
 
-        tabs[2] = createButton(rend, "Tab 3", createRect(300, 0, 100, 20), ui_res.charcoal, ui_res.grey, ui_res.montserrat_small);
-        panel_addComponent(panel, COMPONENT_BUTTON, tabs[2], "tab3");
+        tabs[2] = createButton(rend, "Tab 3", createRect(200, 0, 100, 20), ui_res.charcoal, ui_res.grey, ui_res.montserrat_small);
+        panel_addComponent(panels[0], COMPONENT_BUTTON, tabs[2], "tab3");
         button_setColorsHovered(rend, tabs[2], ui_res.slate_grey, ui_res.white);
 
-        tabs[3] = createButton(rend, "Tab 4", createRect(400, 0, 100, 20), ui_res.charcoal, ui_res.grey, ui_res.montserrat_small);
-        panel_addComponent(panel, COMPONENT_BUTTON, tabs[3], "tab4");
+        tabs[3] = createButton(rend, "Tab 4", createRect(300, 0, 100, 20), ui_res.charcoal, ui_res.grey, ui_res.montserrat_small);
+        panel_addComponent(panels[0], COMPONENT_BUTTON, tabs[3], "tab4");
         button_setColorsHovered(rend, tabs[3], ui_res.slate_grey, ui_res.white);
 
         Slider sldrs[6];
         char *slider_keys[6] = {"sldr1", "sldr2", "sldr3", "sldr4", "sldr5", "sldr6"};
         for(int i = 0; i < 6; i++) {
                 sldrs[i] = createSlider(50, 100 + i*20, 160, ui_res.slate_grey);
-                panel_addComponent(panel, COMPONENT_SLIDER, sldrs[i], slider_keys[i]);
+                panel_addComponent(panels[1], COMPONENT_SLIDER, sldrs[i], slider_keys[i]);
         }
 
         Button btns[4];
         char *btn_keys[4] = {"btn1", "btn2", "btn3", "btn4"};
         for(int i = 0; i < 4; i++) {
                 btns[i] = createButton(rend, btn_keys[i], createRect(250, 100 + i*60, 160, 40), ui_res.charcoal, ui_res.grey, ui_res.montserrat_medium);
-                panel_addComponent(panel, COMPONENT_BUTTON, btns[i], btn_keys[i]);
+                panel_addComponent(panels[2], COMPONENT_BUTTON, btns[i], btn_keys[i]);
                 button_setColorsHovered(rend, btns[i], ui_res.slate_grey, ui_res.white);
         }
         
         return true;
 }
 
-void render(SDL_Renderer *rend, Panel panel) {
+void render(SDL_Renderer *rend, Panel *panels) {
         SDL_SetRenderDrawColor(rend, 0,0,10,0);
         SDL_RenderClear(rend);
-        panel_render(rend, panel);
+        for(int i = 0; i < PANEL_AMOUNT; i++) {
+                panel_render(rend, panels[i]);
+        }
         SDL_RenderPresent(rend);
 }
 
-void cleanUp(UIRes *ui_res, Panel panel, WM *wm) {
+void cleanUp(UIRes *ui_res, Panel *panels, WM *wm) {
         TTF_CloseFont(ui_res->russo_big);
         TTF_CloseFont(ui_res->russo_small);
         TTF_CloseFont(ui_res->russo_medium);
@@ -205,7 +194,9 @@ void cleanUp(UIRes *ui_res, Panel panel, WM *wm) {
         TTF_CloseFont(ui_res->montserrat_small);
         TTF_CloseFont(ui_res->montserrat_medium);
 
-        destroyPanel(panel);
+        for(int i = 0; i < PANEL_AMOUNT; i++) {
+                destroyPanel(panels[i]);
+        }
 
         SDL_DestroyRenderer(wm->rend);
         SDL_DestroyWindow(wm->win);
